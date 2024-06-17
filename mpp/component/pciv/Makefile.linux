@@ -1,0 +1,65 @@
+#*******************************************************************************
+#The rule of make Linux kernel module
+#*******************************************************************************
+
+$(TARGET)-objs = $(SRCS:%.c=%.o)
+$(MOD_NAME)-objs = $(SRCS_O:%.c=%.o)
+
+ifneq ($(KERNELRELEASE),)
+    obj-m += $(TARGET).o
+endif
+
+#*************************************************************************
+# local header
+PCIV_ROOT := $(PWD)/../..
+#*************************************************************************
+# common header
+MKP_CFLAGS += -I$(PCIV_ROOT)/ext_inc
+MKP_CFLAGS += -I$(PCIV_ROOT)/copy_inc
+MKP_CFLAGS += -I$(PCIV_ROOT)/include
+ifneq ($(MPP_BUILD), y)
+MKP_CFLAGS += -I$(REL_INC)
+endif
+ifeq ($(OT_GDB),y)
+FLAGS += -c -g
+else
+FLAGS += -c -O2
+endif
+
+EXTRA_CFLAGS += $(FLAGS)
+EXTRA_CFLAGS += $(MKP_CFLAGS)
+EXTRA_CFLAGS += $(MPP_CFLAGS)
+EXTRA_CFLAGS += $(DRV_CFLAGS)
+
+KBUILD_EXTRA_SYMBOLS += $(OT_KBUILD_EXTRA_SYMBOLS)
+define maco_cp_file
+    if [ ! -z "$(1)" ];then cp -rf $(1) "$(2)"; fi
+endef
+
+BUILD_DIR = $(TEMP_PATH)/$(subst $(SDK_PATH)/,,$(CURDIR))
+BUILD_DIR_MAKEFILE := $(BUILD_DIR)/Makefile
+
+#*******************************************************************************
+.PHONY: default clean
+default:
+	@echo -e "\e[0;32;1m--Compiling '$(TARGET)'... Configs as follow:\e[0;36;1m"
+	@echo ---- USER_CROSS=$(CROSS)      KERNEL_CROSS=$(CROSS_COMPILE)
+	@echo ---- OT_ARCH=$(OT_ARCH), ARCH=$(ARCH), OT_CHIP=$(OT_CHIP), CVER=$(CVER), DBG=$(OT_DBG), OT_FPGA=$(OT_FPGA)
+	@echo ---- CPU_TYPE=$(CPU_TYPE)
+	@echo ---- SDK_PATH=$(SDK_PATH) , PARAM_FILE=$(PARAM_FILE)
+	@echo ---- KERNEL_ROOT=$(KERNEL_ROOT)
+	@echo ---- EXTRA_CFLAGS=$(EXTRA_CFLAGS)
+	@echo ---- SRCS=$(SRCS)
+	@echo -e "\e[0m"
+	@mkdir -p $(BUILD_DIR)
+	@touch $(BUILD_DIR_MAKEFILE)
+	@$(MAKE) -C $(KERNEL_ROOT)  M=$(BUILD_DIR) src=$(CURDIR) O=$(KERNEL_ROOT) V=10 modules -j 24
+ifeq ($(OT_GDB), n)
+	@$(CROSS)strip --strip-unneeded $(BUILD_DIR)/$(TARGET).ko
+endif
+	@mkdir -p $(REL_KO)  && cp -rf $(BUILD_DIR)/$(TARGET).ko $(REL_KO)
+clean:
+	@mkdir -p $(BUILD_DIR)
+	@$(MAKE) -C $(KERNEL_ROOT)  M=$(BUILD_DIR) src=$(CURDIR) O=$(KERNEL_ROOT) clean
+	@rm -f $(REL_KO)/$(TARGET).ko
+
