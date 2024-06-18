@@ -477,6 +477,7 @@ __inline static td_void ot_common_get_vpss_compact_seg_buf_size(ot_pic_buf_attr 
     }
 }
 
+/* 获取一帧图像的buf大小 */
 __inline static td_u32 ot_common_get_pic_buf_size(ot_pic_buf_attr *buf_attr)
 {
     ot_vb_calc_cfg calc_cfg;

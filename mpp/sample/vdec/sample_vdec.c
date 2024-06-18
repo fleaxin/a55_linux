@@ -144,8 +144,8 @@ static td_s32 sample_init_module_vb(sample_vdec_attr *sample_vdec, td_u32 vdec_c
 static td_s32 sample_init_sys_and_vb(sample_vdec_attr *sample_vdec, td_u32 vdec_chn_num, ot_payload_type type,
     td_u32 len)
 {
-    ot_vb_cfg vb_cfg;
-    ot_pic_buf_attr buf_attr = {0};
+    ot_vb_cfg vb_cfg; //xb: 所有VB的配置信息，一共16个pool，相同大小的block在一个pool中
+    ot_pic_buf_attr buf_attr = {0}; //xb: 记录一帧的信息
     td_s32 ret;
 
 	//xb: 根据设置的解码参数g_vdec_display_cfg，获取一帧的长宽像素
@@ -521,7 +521,7 @@ static td_s32 sample_h264_vdec_vpss_vo(td_void)
     td_s32 ret;
     td_u32 vdec_chn_num, vpss_grp_num;
     ot_vpss_grp vpss_grp;
-    sample_vdec_attr sample_vdec[OT_VDEC_MAX_CHN_NUM];
+    sample_vdec_attr sample_vdec[OT_VDEC_MAX_CHN_NUM]; //xb: 保存所有解码通道的配置信息
     sample_vo_cfg vo_config;
     td_bool vpss_chn_enable[OT_VPSS_MAX_CHN_NUM];
 

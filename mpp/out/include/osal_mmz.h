@@ -20,20 +20,21 @@
 #define MMZ_REGION_OUT_RANGE  -3
 
 
+/*xb: ot_media_memory_zone描述了一个mmz区域的所有信息，可以有多个mmz区域，通过链表连接在一起。*/
 struct ot_media_memory_zone {
     char name[OT_MMZ_NAME_LEN];
 
-    unsigned long gfp;
+    unsigned long gfp; //xb:区域标识
 
-    unsigned long phys_start;
-    unsigned long nbytes;
+    unsigned long phys_start; //xb:mmz区域起始物理地址
+    unsigned long nbytes; //xb:mmz区域大小
 
-    struct osal_list_head list;
+    struct osal_list_head list;  //xb:mmz链表
     union {
         struct device *cma_dev;
-        unsigned char *bitmap;
+        unsigned char *bitmap; //xb:位图
     };
-    struct osal_list_head mmb_list;
+    struct osal_list_head mmb_list; //xb:mmz区域的mmb链表，存放所有申请到的物理内存
 
     unsigned int alloc_type;
     unsigned long block_align;
