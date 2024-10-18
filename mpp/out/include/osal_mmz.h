@@ -24,15 +24,15 @@
 struct ot_media_memory_zone {
     char name[OT_MMZ_NAME_LEN];
 
-    unsigned long gfp; //xb:区域标识
+    unsigned long gfp;              //xb:区域标识
 
-    unsigned long phys_start; //xb:mmz区域起始物理地址
-    unsigned long nbytes; //xb:mmz区域大小
+    unsigned long phys_start;       //xb:mmz区域起始物理地址
+    unsigned long nbytes;           //xb:mmz区域大小
 
-    struct osal_list_head list;  //xb:mmz链表
+    struct osal_list_head list;     //xb:mmz链表
     union {
         struct device *cma_dev;
-        unsigned char *bitmap; //xb:位图
+        unsigned char *bitmap;      //xb:位图
     };
     struct osal_list_head mmb_list; //xb:mmz区域的mmb链表，存放所有申请到的物理内存
 
@@ -46,24 +46,25 @@ typedef struct ot_media_memory_zone ot_mmz_t;
 #define OT_MMZ_FMT_S              "PHYS(0x%08lX, 0x%08lX), GFP=%lu, nBYTES=%luKB,    NAME=\"%s\""
 #define ot_mmz_fmt_arg(p) (p)->phys_start, (p)->phys_start + (p)->nbytes - 1, (p)->gfp, (p)->nbytes / SZ_1K, (p)->name
 
+/* ot_media_memory_block描述了从mmz区域申请一块内存，同一个mmz区域内的所有mmb通过链表连接。 */
 struct ot_media_memory_block {
 #ifndef MMZ_V2_SUPPORT
     unsigned int id;
 #endif
-    char name[OT_MMB_NAME_LEN];
-    struct ot_media_memory_zone *zone;
-    struct osal_list_head list;
+    char name[OT_MMB_NAME_LEN];         //xb:该mmb模块使用者名字
+    struct ot_media_memory_zone *zone;  //xb:指向mmb所属的mmz区域
+    struct osal_list_head list;         //xb:mmb链表
 
-    unsigned long phys_addr;
-    void *kvirt;
-    unsigned long length;
+    unsigned long phys_addr;            //xb:申请到的mmb起始物理地址
+    void *kvirt;                        //xb:对应内核虚拟地址
+    unsigned long length;               //申请的mmb大小
 
-    unsigned long flags;
+    unsigned long flags;                //标识
 
     unsigned int order;
 
-    int phy_ref;
-    int map_ref;
+    int phy_ref;                        //引用计数
+    int map_ref;                        //引用计数
 };
 typedef struct ot_media_memory_block ot_mmb_t;
 
